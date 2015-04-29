@@ -42,23 +42,15 @@ ko.bindingHandlers.dataTable = {
         if (binding.options) {
             options = $.extend(options, binding.options);
         }
-        // Define the tables columns.
-        if (binding.columns && binding.columns.length) {
-            options.aoColumns = [];
-            ko.utils.arrayForEach(binding.columns, function (col) {
-                options.aoColumns.push({ mDataProp: col });
-
-            });
-        }
-
+        
         // Define column data attributes
         if (binding.columns && binding.columns.length) {
             options.aoColumns = [];
             ko.utils.arrayForEach(binding.columns, function (col) {
 
-                options.aoColumns.push({ mDataProp: col.name });
+                options.aoColumns.push({ mData: col.name });
 
-                theIndex = binding.columns.indexOf(col);
+                theIndex = binding.columns.indexOf(col);                
 
                 if (col.dataSort) {
                     options.aoColumns[theIndex].iDataSort = col.dataSort;
@@ -131,11 +123,11 @@ ko.bindingHandlers.dataTable = {
         // Set the data source of the DataTable.
         if (binding.dataSource) {
 
-            dataSource = ko.utils.unwrapObservable(binding.dataSource);
+            dataSource = ko.toJS(binding.dataSource);
 
             if (dataSource instanceof Array) {
                 // Set the initial datasource of the table.
-                options.aaData = ko.utils.unwrapObservable(binding.dataSource);
+                options.aaData = dataSource;
 
                 // If the data source is a knockout observable array...
                 if (ko.isObservable(binding.dataSource)) {
@@ -158,7 +150,7 @@ ko.bindingHandlers.dataTable = {
                         // Unwrap the items in the data source if required.
                         unwrappedItems = [];
                         ko.utils.arrayForEach(newItems, function (item) {
-                            dataTable.fnAddData(ko.utils.unwrapObservable(item));
+                            dataTable.fnAddData(ko.toJS(item));
                         });
                     });
                 }
@@ -184,7 +176,7 @@ ko.bindingHandlers.dataTable = {
 
                     var newCell, accesor;
 
-                    columnName = column.mDataProp;
+                    columnName = column.mData;
 
                     newCell = $("<td></td>");
 
@@ -297,7 +289,7 @@ ko.bindingHandlers.dataTable = {
                 destOptions.Columns[colIndex].IsSearchable = item.value;
             } else if (cog.string.startsWith(item.name, "sSearch_")) {
                 destOptions.Columns[colIndex].SearchText = item.value;
-            } else if (cog.string.startsWith(item.name, "mDataProp_")) {
+            } else if (cog.string.startsWith(item.name, "mData_")) {
                 destOptions.Columns[colIndex].ColumnName = item.value;
             } else if (cog.string.startsWith(item.name, "iSortCol_")) {
                 destOptions.Columns[item.value].IsSorted = true;
